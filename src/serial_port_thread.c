@@ -20,8 +20,8 @@ static int serial_config(int fd) {
     //size: 8
     options.c_cflag |= CS8;
     //parity: NONE
-    options.c_cflag |= ~PARENB;
-    options.c_cflag |= ~PARODD;
+    options.c_cflag &= ~PARENB;
+    options.c_cflag &= ~PARODD;
     //stop bit: 1
     options.c_cflag &= ~CSTOPB;
 
@@ -29,24 +29,39 @@ static int serial_config(int fd) {
     options.c_cflag |= (CLOCAL | CREAD);
 
     tcflush(fd,TCIFLUSH);
-    tcsetattr(fd,TCSANOW,&options);
+    if(tcsetattr(fd,TCSANOW,&options) < 0) {
+        return -1;
+    }
 
+    tcdrain(fd);
     return 0;
 }
 
-void is_pass_send(char is_pass) {
-    int fd = open(USART_NAME,O_RDWR | O_NOCTTY);
+void is_pass_send(int is_pass) {
+    int fd = open(USART_NAME,O_RDWR | O_NOCTTY | O_NONBLOCK);
+    char passed = (is_pass ? 'P' : 'U');
 
     if(fd == -1) {
         perror("Open usart failed");
         return;
     }
-    serial_config(fd);
 
-    int len = write(fd,&is_pass,1);
-    if(len < 0) {
+    fcntl(fd,F_SETFL,0);
+
+    if(serial_config(fd) == -1) {
+        perror("Config failed");
+        close(fd);
+        return;
+    }
+
+    int wl = write(fd,&passed,1);
+    tcdrain(fd);
+
+    if(wl < 0) {
         perror("Send failed");
     }
+
+    //要不要加个等待下位机返回?
 
     close(fd);
     return;

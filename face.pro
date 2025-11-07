@@ -13,9 +13,9 @@ HEADERS += $$files(inc/*.h, true) \
 INCLUDEPATH += $$SDKTARGETSYSROOT/usr/include/opencv4 \
                $$PWD/inc
 
-LIBS += -lopencv_core 
-        -lopencv_imgproc 
-        -lopencv_highgui 
-        -lopencv_imgcodecs 
-        -lopencv_videoio
-        -lthread
+LIBS += -lopencv_core       \ 
+        -lopencv_imgproc    \
+        -lopencv_highgui    \
+        -lopencv_imgcodecs  \
+        -lopencv_videoio    \
+        -lsqlite3           \
