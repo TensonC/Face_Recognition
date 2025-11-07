@@ -1,0 +1,14 @@
+
+source /opt/fsl-imx-x11/4.1.15-2.1.0/environment-setup-*
+
+if qmake; then
+   echo -e "\e[1;36mqmake finish\e[0m"
+else
+   echo -e "\e[1;31mqmake failed\e[0m"
+fi
+
+if make -j4; then
+   echo -e "\e[1;36mmake finish\e[0m"
+else
+   echo -e "\e[1;31mmake failed\e[0m"
+fi
