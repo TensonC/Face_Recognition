@@ -1,4 +1,4 @@
-#include <log_thread.h>
+#include "log_thread.h"
 
 #include <stdio.h>
 #include <sqlite3.h>
@@ -61,11 +61,11 @@ static int insert_log(sqlite3* db,int is_pass) {
     return 0;
 }
 
-void read_log(struct log_info* info, int len, int start) {
+int read_log(struct log_info* info, int len, int start) {
     sqlite3* db;
     sqlite3_stmt* stmt;
     char sql[128];
-    int i = 0;
+    int size = 0;
 
     snprintf(sql, sizeof(sql), 
             "SELECT ID,TIME,PASSED FROM recognition LIMIT %d OFFSET %d;",
@@ -73,26 +73,28 @@ void read_log(struct log_info* info, int len, int start) {
 
     if (sqlite3_open(DATABASE_FILE,&db) != SQLITE_OK) {
         printf("Can't open database: %s\n",sqlite3_errmsg(db));
-        return;
+        return -1;
     }
 
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK) {
         printf("SQL prepare failed: %s\n",sqlite3_errmsg(db));
         sqlite3_close(db);
-        return;
+        return -1;
     }
 
-    while (sqlite3_step(stmt) == SQLITE_ROW || i < len) {
-        info[i].id = sqlite3_column_int(stmt,0);
-        strcpy(info[i].time,(const char*)sqlite3_column_text(stmt,1));
-        strcpy(info[i].passed,(const char*)sqlite3_column_text(stmt,2));
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        info->id = sqlite3_column_int(stmt,0);
+        strcpy(info->time,(const char*)sqlite3_column_text(stmt,1));
+        strcpy(info->passed,(const char*)sqlite3_column_text(stmt,2));
         
-        i++;
+        info++;
+        size++;
     }
 
     sqlite3_finalize(stmt);
     sqlite3_close(db);
-    return;
+
+    return size;
 }
 
 void write_log(int is_pass) {

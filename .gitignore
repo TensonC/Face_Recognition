@@ -1,4 +1,9 @@
-
+build-*/
+*moc_*.cpp
+*moc_*.h
+*.moc
+*.ui
+qrc_*.cpp
 .qmake.stash
 /obj/
 .vscode

@@ -7,4 +7,4 @@ struct log_info {
 };
 
 void write_log(int is_pass);
-void read_log(struct log_info* info, int len, int start);
+int read_log(struct log_info* info, int len, int start);
