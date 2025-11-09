@@ -1,10 +1,11 @@
 #include <QApplication>
+#include <stdlib.h>
 #include "main_window.h"
 
 int main(int argc, char* argv[]) {
-    QApplication face_recognition_application(argc,argv);
+    QApplication face_app(argc,argv);
     Face win;
     win.show();
-    return face_recognition_application.exec();
+    return face_app.exec();
 
 }

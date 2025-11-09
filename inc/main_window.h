@@ -1,11 +1,16 @@
-#ifndef _MAIN_WINDOW_
-#define _MAIN_WINDOW_
+#ifndef _MAIN_WINDOW_H_
+#define _MAIN_WINDOW_H_
 
 #include <QMainWindow>
-
-QT_BEGIN_NAMESPACE
-namespace Ui { class Face; }
-QT_END_NAMESPACE
+#include <QStackedWidget>
+#include <QMenuBar>
+#include <QTableWidget>
+#include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <thread>
+#include <atomic>
 
 class Face : public QMainWindow
 {
@@ -15,10 +20,22 @@ public:
     Face(QWidget *parent = nullptr);
     ~Face();
 
-private slots:
-    void nextLogPage();
 private:
-    Ui::Face *ui;
+    QStackedWidget *Page;
+
+    QWidget *page_face;
+    QLabel *face_label;
+
+    QWidget *page_log;
+    QTableWidget *log_table;
+    QPushButton *btn_next;
+
+    QWidget *page_new_face;
+    QLabel *new_face_label;
+    QPushButton *btn_face;
+    QPushButton *btn_log;
+    QPushButton *btn_new;
+    QPushButton *btn_ok;
 };
 
-#endif //_MAIN_WINDOW_
+#endif // _MAIN_WINDOW_H_

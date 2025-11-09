@@ -1,69 +1,129 @@
-#include <QAction>
-#include <QPushButton>
-#include "log_thread.h"
-#include "face_ui.h"
 #include "main_window.h"
+#include <QHeaderView>
+#include <QAction>
 
 Face::Face(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::Face)
 {
+    setObjectName("Face");
+    setFixedSize(480,800);
 
-    //init
-    ui->setupUi(this);
+    QWidget *central = new QWidget(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout(central);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
+    setCentralWidget(central);
 
-    Face::nextLogPage();
+    //Page
+    Page = new QStackedWidget(this);
+    mainLayout->addWidget(Page);
 
-    //action
-    auto* actFace = new QAction(tr("face_recognition"),this);
-    auto* actLog = new QAction(tr("log"),this);
-    auto* actNew = new QAction(tr("new_face"),this);
+    // Page0:Face Recognition
+    page_face = new QWidget();
+    QVBoxLayout *faceLayout = new QVBoxLayout(page_face);
 
-    ui->face_recognition->addAction(actFace);
-    ui->log->addAction(actLog);
-    ui->new_face->addAction(actNew);
+    face_label = new QLabel("实时摄像头画面区域", page_face);
+    face_label->setAlignment(Qt::AlignCenter);
+    face_label->setScaledContents(true);
+    face_label->setStyleSheet("background:#000;color:white;font-size:20px;");
 
-    connect(actFace,&QAction::triggered,this,[this](){ui->Page->setCurrentIndex(0); });
-    connect(actLog,&QAction::triggered,this,[this](){ui->Page->setCurrentIndex(1); });
-    connect(actNew,&QAction::triggered,this,[this](){ui->Page->setCurrentIndex(2); });
-    connect(ui->next_page_of_log,&QPushButton::clicked,this,&Face::nextLogPage);
+    faceLayout->addWidget(face_label);
+    Page->addWidget(page_face);
+
+    //Page1:Log Page
+    page_log = new QWidget();
+    QVBoxLayout *logLayout = new QVBoxLayout(page_log);
+
+    log_table = new QTableWidget(10, 3, page_log);
+    log_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    log_table->setSelectionMode(QAbstractItemView::NoSelection);
+    log_table->setShowGrid(true);
+
+    QStringList headers;
+    headers << "时间" << "人员" << "结果";
+    log_table->setHorizontalHeaderLabels(headers);
+    log_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    log_table->verticalHeader()->setVisible(false);
+
+    log_table->setStyleSheet(
+        "QTableWidget { background:#f8f8f8; font-size:16px; }"
+        "QHeaderView::section { background:#e0e0e0; font-weight:bold; }"
+    );
+
+    btn_next = new QPushButton("下一页", page_log);
+    btn_next->setFixedHeight(50);
+    btn_next->setStyleSheet(
+        "QPushButton { background:#2196F3; color:white; border-radius:8px; font-size:18px; }"
+        "QPushButton:pressed { background:#1976D2; }"
+    );
+
+    logLayout->addWidget(log_table);
+    logLayout->addWidget(btn_next);
+    Page->addWidget(page_log);
+
+    //Page2:New Face
+    page_new_face = new QWidget();
+    QVBoxLayout *newFaceLayout = new QVBoxLayout(page_new_face);
+
+    new_face_label = new QLabel("录入新的人脸画面区域", page_new_face);
+    new_face_label->setAlignment(Qt::AlignCenter);
+    new_face_label->setScaledContents(true);
+    new_face_label->setStyleSheet("background:#000;color:white;font-size:20px;");
+
+    btn_ok = new QPushButton("确定录入", page_new_face);
+    btn_ok->setFixedHeight(60);
+    btn_ok->setStyleSheet(
+        "QPushButton { background:#4CAF50; color:white; border-radius:8px; font-size:20px; }"
+        "QPushButton:pressed { background:#3E8E41; }"
+    );
+
+    newFaceLayout->addWidget(new_face_label);
+    newFaceLayout->addWidget(btn_ok);
+    Page->addWidget(page_new_face);
+
+    //Menu Bar
+    QWidget *topBar = new QWidget(this);
+    topBar->setFixedHeight(70);
+    topBar->setStyleSheet("background:#303030;");
+    mainLayout->addWidget(topBar);
+
+    QHBoxLayout *topLayout = new QHBoxLayout(topBar);
+    topLayout->setContentsMargins(10, 5, 10, 5);
+    topLayout->setSpacing(10);
+
+    btn_face = new QPushButton("识别");
+    btn_log = new QPushButton("日志");
+    btn_new = new QPushButton("录入");
+
+    QString btnStyle = 
+            "QPushButton {"             \
+            "   background:#87CEFA;"    \
+            "   color:white;"           \
+            "   border-radius:10px;"    \
+            "   font-size:26px;"        \
+            "   padding:10px;"          \
+            "}"                         \
+            "QPushButton:pressed {"     \
+            "   background:#1E90FF;"    \
+            "}";
+
+    btn_face->setStyleSheet(btnStyle);
+    btn_log->setStyleSheet(btnStyle);
+    btn_new->setStyleSheet(btnStyle);
+
+    topLayout->addWidget(btn_face);
+    topLayout->addWidget(btn_log);
+    topLayout->addWidget(btn_new);
+
+    connect(btn_face, &QPushButton::clicked, [=](){ Page->setCurrentIndex(0); });
+    connect(btn_log, &QPushButton::clicked, [=](){ Page->setCurrentIndex(1); });
+    connect(btn_new, &QPushButton::clicked, [=](){ Page->setCurrentIndex(2); });
+
+    Page->setCurrentIndex(0);
+
+    //other init set
+
 }
 
 Face::~Face()
 {
-    delete ui;
 }
-
-
-void Face::nextLogPage() {
-    static int page = 0;
-    struct log_info info[10];
-
-    int size = read_log(info,10,page * 10);
-
-    if (size < 0) {
-        return;
-    }
-
-    if (size == 0) {
-        page = 0;
-        return;
-    }
-
-    ui->log_table->setRowCount(size);
-    for (int i = 0; i < size; i++) {
-        ui->log_table->setItem(i, 0, new QTableWidgetItem(QString::number(info[i].id)));
-        ui->log_table->setItem(i, 1, new QTableWidgetItem(info[i].time));
-        ui->log_table->setItem(i, 2, new QTableWidgetItem(info[i].passed));
-    }
-    page++;
-}
-
-
-
-
-
-
-
-
-
