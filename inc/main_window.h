@@ -2,15 +2,10 @@
 #define _MAIN_WINDOW_H_
 
 #include <QMainWindow>
-#include <QStackedWidget>
-#include <QMenuBar>
-#include <QTableWidget>
-#include <QLabel>
-#include <QPushButton>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <thread>
-#include <atomic>
+
+QT_BEGIN_NAMESPACE
+namespace UI { class Face; }
+QT_END_NAMESPACE
 
 class Face : public QMainWindow
 {
@@ -21,21 +16,8 @@ public:
     ~Face();
 
 private:
-    QStackedWidget *Page;
+    UI::Face* ui;
 
-    QWidget *page_face;
-    QLabel *face_label;
-
-    QWidget *page_log;
-    QTableWidget *log_table;
-    QPushButton *btn_next;
-
-    QWidget *page_new_face;
-    QLabel *new_face_label;
-    QPushButton *btn_face;
-    QPushButton *btn_log;
-    QPushButton *btn_new;
-    QPushButton *btn_ok;
 };
 
 #endif // _MAIN_WINDOW_H_
