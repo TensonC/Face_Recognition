@@ -1,13 +1,13 @@
 #ifndef _MAIN_WINDOW_H_
 #define _MAIN_WINDOW_H_
 
+#include "FaceWorker.h"
 #include <QMainWindow>
 #include <QVector>
 #include <QThread>
 #include <QObject>
 #include "log_thread.h"
 #include "ui.h"
-
 
 QT_BEGIN_NAMESPACE
 namespace UI { class Face; }
@@ -21,14 +21,21 @@ public:
     ~Face();
 private slots:
     void showLogs(QVector<log_info> logs);
+    void showImage(const QImage&  frame);
+    void showMessage(const QString& message);
+    void facePass(const RecognitionResult& result);
 signals:
     void read_notification(int len);
+    void open_camera_notification(int deviceId);
+    void stop_camera_notification();
 private:
     UI::Face* ui;
-
+    
     QThread writeLogThread;
     QThread readLogThread;
+    QThread faceWorkerThread;
 
+    FaceWorker *face_worker; 
     LogDatabase *logdb;
     WriteLog *write_log;
     ReadLog *read_log;

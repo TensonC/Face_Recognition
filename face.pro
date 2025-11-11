@@ -17,4 +17,6 @@ LIBS += -lopencv_core       \
         -lopencv_imgproc    \
         -lopencv_highgui    \
         -lopencv_imgcodecs  \
-        -lopencv_videoio
+        -lopencv_videoio    \
+        -lopencv_objdetect  \
+        -lopencv_face

@@ -6,6 +6,7 @@ Face::Face(QWidget *parent)
 {
     ui->setupUI(this);
     
+    //日志数据库的读写部分
     logdb = new LogDatabase("/mnt/tf/recognition_log.db");
     write_log = new WriteLog;
     read_log = new ReadLog;
@@ -16,12 +17,22 @@ Face::Face(QWidget *parent)
     writeLogThread.start();
     readLogThread.start();
 
+    //摄像机部分
+    face_worker = new  FaceWorker;
+
+    face_worker->moveToThread(&faceWorkerThread);
+
+    faceWorkerThread.start();
+
     connect(ui->btn_face, &QPushButton::clicked, 
-            this, [=](){ ui->Page->setCurrentIndex(0); });
+            this, [=](){ ui->Page->setCurrentIndex(0); 
+                         emit open_camera_notification(1);});
     connect(ui->btn_log, &QPushButton::clicked, 
-            this, [=](){ ui->Page->setCurrentIndex(1); });
+            this, [=](){ ui->Page->setCurrentIndex(1); 
+                         emit stop_camera_notification();});
     connect(ui->btn_new, &QPushButton::clicked, 
-            this, [=](){ ui->Page->setCurrentIndex(2); });
+            this, [=](){ ui->Page->setCurrentIndex(2); 
+                         emit open_camera_notification(1);});
 
     //点击下一页发送读日志申请
     connect(ui->btn_next, &QPushButton::clicked,
@@ -32,6 +43,23 @@ Face::Face(QWidget *parent)
     //读取完成显示ui
     connect(read_log, &ReadLog::LogsReady, 
             this, &Face::showLogs);
+
+    //识别到人脸显示图片
+    connect(face_worker, &FaceWorker::frameReady,
+            this, &Face::showImage);
+    //状态改变显示消息
+    connect(face_worker, &FaceWorker::statusChanged,
+            this, &Face::showMessage);
+    //认证成功发送信号
+    connect(face_worker, &FaceWorker::resultReady,
+            this, &Face::facePass);
+    //发送开始识别的请求
+    connect(this, &Face::open_camera_notification,
+            face_worker, &FaceWorker::startProcessing);
+    //发送结束识别的请求
+    connect(this, &Face::stop_camera_notification,
+            face_worker, &FaceWorker::stopProcessing);
+
 }
 
 Face::~Face()
@@ -42,6 +70,8 @@ Face::~Face()
     writeLogThread.wait();
     readLogThread.quit();
     readLogThread.wait();
+    faceWorkerThread.quit();
+    faceWorkerThread.wait();
 }
 
 void Face::showLogs(QVector<log_info> logs) {
@@ -53,11 +83,18 @@ void Face::showLogs(QVector<log_info> logs) {
     }
 }
 
+void Face::showImage(const QImage& frame) {
+    ui->face_label->setPixmap(QPixmap::fromImage(frame));
+    ui->face_label->setScaledContents(true);
+}
 
+void Face::facePass(const RecognitionResult& result) {
 
+}
 
-
-
+void Face::showMessage(const QString& message) {
+    
+}
 
 
 
