@@ -1,4 +1,4 @@
-QT += widgets
+QT += widgets sql
 CONFIG += c++11
 
 OBJECTS_DIR = $$OUT_PWD/obj
@@ -17,5 +17,4 @@ LIBS += -lopencv_core       \
         -lopencv_imgproc    \
         -lopencv_highgui    \
         -lopencv_imgcodecs  \
-        -lopencv_videoio    \
-        -lsqlite3           \
+        -lopencv_videoio
