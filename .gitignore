@@ -7,4 +7,5 @@ qrc_*.cpp
 .qmake.stash
 /obj/
 .vscode
+*.swp
 Makefile
