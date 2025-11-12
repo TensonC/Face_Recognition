@@ -1,11 +1,13 @@
 #include "main_window.h"
+#include "log_thread.h"
+#include "QString"
 
 Face::Face(QWidget *parent)
     : QMainWindow(parent)
     , ui(new UI::Face)
 {
     ui->setupUI(this);
-    
+        
     //日志数据库的读写部分
     logdb = new LogDatabase("/mnt/tf/recognition_log.db");
     write_log = new WriteLog;
@@ -43,7 +45,9 @@ Face::Face(QWidget *parent)
     //读取完成显示ui
     connect(read_log, &ReadLog::LogsReady, 
             this, &Face::showLogs);
-
+    //收到写信号进行写日志
+    connect(this,&Face::write_log_notification,
+            write_log,&WriteLog::writeLog);
     //识别到人脸显示图片
     connect(face_worker, &FaceWorker::frameReady,
             this, &Face::showImage);
@@ -89,11 +93,14 @@ void Face::showImage(const QImage& frame) {
 }
 
 void Face::facePass(const RecognitionResult& result) {
-
+    log_info* log = new log_info;
+    log->passed = "Pass";
+    log->user = QString::fromStdString(result.name);
+    emit write_log_notification(*log);
 }
 
 void Face::showMessage(const QString& message) {
-    
+    message.size();
 }
 
 

@@ -1,6 +1,7 @@
 QT += widgets sql
 CONFIG += c++11
 
+
 OBJECTS_DIR = $$OUT_PWD/obj
 DESTDIR = $$OUT_PWD/bin
 

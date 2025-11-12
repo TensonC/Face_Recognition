@@ -6,6 +6,8 @@ build-*/
 qrc_*.cpp
 .qmake.stash
 /obj/
+/.cache/
 .vscode
 *.swp
 Makefile
+compile_commands.json

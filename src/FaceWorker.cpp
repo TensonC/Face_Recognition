@@ -240,9 +240,9 @@ QImage FaceWorker::convertMatToQImage(const cv::Mat& mat)
  {
     if (result.is_known)
     {
-        emit resultReady(result);
         if (result.person_id !=m_lastRecognizedId)
         {
+            emit resultReady(result);
             m_lastRecognizedId=result.person_id;
 
             m_hardwareController.triggerSuccessSequence(result.name);

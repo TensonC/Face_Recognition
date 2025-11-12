@@ -28,6 +28,7 @@ signals:
     void read_notification(int len);
     void open_camera_notification(int deviceId);
     void stop_camera_notification();
+    void write_log_notification(const log_info& log);
 private:
     UI::Face* ui;
     
