@@ -1,6 +1,8 @@
 #include "main_window.h"
+#include "FaceWorker.h"
 #include "log_thread.h"
-#include "QString"
+#include <QString>
+#include <QDialog>
 
 Face::Face(QWidget *parent)
     : QMainWindow(parent)
@@ -35,7 +37,13 @@ Face::Face(QWidget *parent)
     connect(ui->btn_new, &QPushButton::clicked, 
             this, [=](){ ui->Page->setCurrentIndex(2); 
                          emit open_camera_notification(1);});
-
+    connect(ui->snap_delet, &QPushButton::clicked,
+            this, [=](){ui->snapshot_dialog->close();});
+    connect(ui->snap_enroll, &QPushButton::clicked,
+            this, [=](){
+            emit Face::enroll_new_face_notification(
+                    ui->id_edit->text().toInt(),
+                    ui->name_edit->text());});
     //点击下一页发送读日志申请
     connect(ui->btn_next, &QPushButton::clicked,
             this, [=](){ emit read_notification(10); });
@@ -63,6 +71,12 @@ Face::Face(QWidget *parent)
     //发送结束识别的请求
     connect(this, &Face::stop_camera_notification,
             face_worker, &FaceWorker::stopProcessing);
+    //确认抓拍
+    connect(ui->btn_ok,&QPushButton::clicked,
+            face_worker,&FaceWorker::captureSnapshot);
+    //获得抓拍照后弹出输入信息和确认窗口
+    connect(face_worker,&FaceWorker::snapshotReady,
+            this,&Face::showSnapshotWidget);
 
 }
 
@@ -103,5 +117,11 @@ void Face::showMessage(const QString& message) {
     message.size();
 }
 
+void Face::showSnapshotWidget(const QImage& snap) {
+    ui->snapshot->setPixmap(QPixmap::fromImage(snap));
+    ui->snapshot->setScaledContents(true);
+    ui->snapshot_dialog->show();
+        
+}
 
 

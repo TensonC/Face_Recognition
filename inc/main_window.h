@@ -24,11 +24,13 @@ private slots:
     void showImage(const QImage&  frame);
     void showMessage(const QString& message);
     void facePass(const RecognitionResult& result);
+    void showSnapshotWidget(const QImage& shapshot);
 signals:
     void read_notification(int len);
     void open_camera_notification(int deviceId);
     void stop_camera_notification();
     void write_log_notification(const log_info& log);
+    void enroll_new_face_notification(int employeeID,const QString& employeeName);
 private:
     UI::Face* ui;
     

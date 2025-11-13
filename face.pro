@@ -6,10 +6,10 @@ OBJECTS_DIR = $$OUT_PWD/obj
 DESTDIR = $$OUT_PWD/bin
 
 SOURCES += $$files(src/*.cpp, true) \
-           $$files(src/*.c, true)
+           $$files(src/*.c, true)   \
 
-HEADERS += $$files(inc/*.h, true) \
-           $$files(inc/*.hpp, true)
+HEADERS += $$files(inc/*.h, true)   \
+           $$files(inc/*.hpp, true) \
 
 INCLUDEPATH += $$SDKTARGETSYSROOT/usr/include/opencv4 \
                $$PWD/inc

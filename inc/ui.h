@@ -9,7 +9,8 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHeaderView>
-
+#include <QDialog>
+#include <QLineEdit>
 
 class Face_UI {
 
@@ -29,6 +30,12 @@ public:
     QPushButton *btn_log;
     QPushButton *btn_new;
     QPushButton *btn_ok;
+    QDialog* snapshot_dialog;
+    QLabel *snapshot;
+    QPushButton *snap_enroll;
+    QPushButton *snap_delet;
+    QLineEdit *name_edit;
+    QLineEdit *id_edit;
 
     void setupUI(QMainWindow* Face) {
         Face->setObjectName("Face");
@@ -101,7 +108,7 @@ public:
         new_face_label->setStyleSheet(
                     "background:#000;color:white;font-size:20px;");
 
-        btn_ok = new QPushButton("确定录入", page_new_face);
+        btn_ok = new QPushButton("抓拍", page_new_face);
         btn_ok->setFixedHeight(60);
         btn_ok->setStyleSheet(
                 "QPushButton { "                                \
@@ -113,6 +120,41 @@ public:
         newFaceLayout->addWidget(new_face_label);
         newFaceLayout->addWidget(btn_ok);
         Page->addWidget(page_new_face);
+
+        snapshot_dialog = new QDialog(page_new_face);
+        QVBoxLayout *dialog_lay = new QVBoxLayout(snapshot_dialog);
+        snapshot = new QLabel("抓拍",snapshot_dialog);
+        snapshot->setAlignment(Qt::AlignCenter);
+        snapshot->setScaledContents(true);
+        snapshot->setStyleSheet(
+                "background:#000;color:white;font-size:20px;");
+        dialog_lay->addWidget(snapshot);
+        name_edit = new QLineEdit(snapshot_dialog);
+        name_edit->setPlaceholderText("name:");
+        id_edit = new QLineEdit(snapshot_dialog);
+        id_edit->setPlaceholderText("id:");
+        dialog_lay->addWidget(id_edit);
+        dialog_lay->addWidget(name_edit);
+        QHBoxLayout *snap_btn_lay = new QHBoxLayout(snapshot_dialog);
+        snap_enroll = new QPushButton("确认",snapshot_dialog);
+        snap_enroll->setFixedHeight(40);
+        snap_enroll->setStyleSheet(
+                "QPushButton { "                                \
+                "background:#4CAF50; color:white; "             \
+                "border-radius:8px; font-size:20px; }"          \
+                "QPushButton:pressed { background:#3E8E41; }"   \
+                );
+        snap_delet = new QPushButton("取消",snapshot_dialog);
+        snap_delet->setFixedHeight(40);
+        snap_delet->setStyleSheet(
+                "QPushButton { "                                \
+                "background:#4CAF50; color:white; "             \
+                "border-radius:8px; font-size:20px; }"          \
+                "QPushButton:pressed { background:#3E8E41; }"   \
+                );
+        snap_btn_lay->addWidget(snap_enroll);
+        snap_btn_lay->addWidget(snap_delet);
+        dialog_lay->addLayout(snap_btn_lay);
 
         //Menu Bar
         QWidget *topBar = new QWidget(Face);
