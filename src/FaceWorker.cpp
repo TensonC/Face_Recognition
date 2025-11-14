@@ -1,9 +1,11 @@
 #include "FaceWorker.h"
 #include <QDebug>       // (用于在 Qt 终端打印)
+#include <opencv2/videoio.hpp>
 #include <sstream>      // (用于格式化置信度)
 #include <iomanip>      // (用于 std::setprecision)
 #include <QThread>      // (用于 msleep)
 #include <string> // <-- (重要) 确保你包含了 <string>
+#include <QDebug>
 
 // (注册元类型)
 FaceWorker::FaceWorker(QObject *parent) 
@@ -35,13 +37,17 @@ void FaceWorker::startProcessing(int deviceId)
     
     // 2. 打开摄像头 (使用我们确定的 ID, 比如 1, 对应 /dev/video1)
     std::string videoPath = "/dev/video" + std::to_string(deviceId);
-    m_cap.open(videoPath, cv::CAP_V4L2); 
+    setenv("OPENCV_VIDEOIO_DISABLE_GSTREAMER", "1", 1);
+    cv::VideoCapture cap;
+    cap.open(videoPath,cv::CAP_V4L2); 
+    qDebug() << "isOPEN:" <<m_cap.isOpened() << "\n";
     if (!m_cap.isOpened()) {
         emit statusChanged(QString("错误: 无法打开摄像头 ID: %1").arg(deviceId));
         return;
     }
 
     emit statusChanged("摄像头已打开，开始处理...");
+    m_cap = std::move(cap);
     m_isRunning = true;
 
     // --- 3. 核心循环 (在工作线程中运行，不会冻结 UI) ---

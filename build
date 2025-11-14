@@ -7,7 +7,7 @@ else
    echo -e "\e[1;31mqmake failed\e[0m"
 fi
 
-if bear -- make -j4 -j$(nproc); then
+if make -j4; then
    echo -e "\e[1;36mmake finish\e[0m"
 else
    echo -e "\e[1;31mmake failed\e[0m"

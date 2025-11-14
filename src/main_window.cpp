@@ -3,6 +3,7 @@
 #include "log_thread.h"
 #include <QString>
 #include <QDialog>
+#include <QDebug>
 
 Face::Face(QWidget *parent)
     : QMainWindow(parent)
@@ -30,13 +31,13 @@ Face::Face(QWidget *parent)
 
     connect(ui->btn_face, &QPushButton::clicked, 
             this, [=](){ ui->Page->setCurrentIndex(0); 
-                         emit open_camera_notification(1);});
+                         emit open_camera_notification(2);});
     connect(ui->btn_log, &QPushButton::clicked, 
             this, [=](){ ui->Page->setCurrentIndex(1); 
                          emit stop_camera_notification();});
     connect(ui->btn_new, &QPushButton::clicked, 
             this, [=](){ ui->Page->setCurrentIndex(2); 
-                         emit open_camera_notification(1);});
+                         emit open_camera_notification(2);});
     connect(ui->snap_delet, &QPushButton::clicked,
             this, [=](){ui->snapshot_dialog->close();});
     connect(ui->snap_enroll, &QPushButton::clicked,
@@ -114,7 +115,7 @@ void Face::facePass(const RecognitionResult& result) {
 }
 
 void Face::showMessage(const QString& message) {
-    message.size();
+    qDebug() << "message:" << message << "\n";
 }
 
 void Face::showSnapshotWidget(const QImage& snap) {
