@@ -6,7 +6,7 @@
 #include <QString>
 #include <QImage>       // (用于向 UI 传递图像)
 #include <QThread>      // (我们会把它移到 QThread)
-
+                        //
 /**
  * @brief (重要) 注册 RecognitionResult 结构体
  * 允许它在 Qt 的信号-槽机制中被安全地传递。
@@ -126,6 +126,5 @@ signals:
      */
     void idStatusReady(bool isAvailable);
 
-    void resultReady(const RecognitionResult& result);
-
+    void recognitionResultReady(const RecognitionResult& result);
 };

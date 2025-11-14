@@ -157,8 +157,7 @@ void FaceWorker::checkIdAvailability(const QString& id_str)
 
 
 /**
- * @brief (槽) 录入已抓拍的人脸 (替代 enroll_tool)。
- * (这个槽会被 UI 线程的信号触发，但在工作线程中执行)
+ * @brief (槽) 录入已抓拍的人脸
  */
 void FaceWorker::enrollCapturedFace(int employeeId, const QString& employeeName)
 {
@@ -173,13 +172,13 @@ void FaceWorker::enrollCapturedFace(int employeeId, const QString& employeeName)
 
     emit statusChanged(QString("正在录入 ID: %1, 姓名: %2...").arg(employeeId).arg(employeeName));
     
-    // --- 1. (这是 enroll_tool 的旧功能) 检测并裁剪 ---
-    // (注意：我们是在 m_lastCleanFrame 上操作)
+    // ---检测并裁剪 ---
+    // 在 m_lastCleanFrame 上操作
     cv::Mat gray;
     cv::cvtColor(m_lastCleanFrame, gray, cv::COLOR_BGR2GRAY);
     cv::equalizeHist(gray, gray);
 
-    // (我们必须创建一个临时的检测器)
+    // 临时检测器)
     cv::CascadeClassifier faceDetector; 
     const std::string cascadePath = "/usr/share/opencv/haarcascades/haarcascade_frontalface_default.xml";
     if (!faceDetector.load(cascadePath)) {
@@ -195,10 +194,10 @@ void FaceWorker::enrollCapturedFace(int employeeId, const QString& employeeName)
         return;
     }
 
-    cv::Mat faceROI = gray(faces[0]); // (假设第一张脸)
+    cv::Mat faceROI = gray(faces[0]);
 
-    // --- 2. (这是 enroll_tool 的旧功能) 调用引擎 ---
-    // (使用我们优化的、带 std::map 的 m_processor)
+    // --- 调用引擎 ---
+    // (优化的、带 std::map 的 m_processor)
     bool success = m_processor.enrollNewFace(faceROI, employeeId, employeeName.toStdString());
 
     if (success) {
@@ -225,11 +224,13 @@ QImage FaceWorker::convertMatToQImage(const cv::Mat& mat)
         cv::Mat rgb;
         cv::cvtColor(mat, rgb, cv::COLOR_BGR2RGB);
         // (QImage::Format_RGB888 要求数据是 RGB 顺序)
-        return QImage(rgb.data, rgb.cols, rgb.rows, rgb.step, QImage::Format_RGB888);
+        QImage temp_shallow_copy(rgb.data, rgb.cols, rgb.rows, rgb.step, QImage::Format_RGB888);
+        return temp_shallow_copy.copy();
     } 
     // 1 通道 (灰度) 图像
     else if (mat.type() == CV_8UC1) {
-        return QImage(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_Grayscale8);
+        QImage temp_shallow_copy(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_Grayscale8);
+        return temp_shallow_copy.copy();
     }
     
     // (其他格式暂不支持)
@@ -242,10 +243,11 @@ QImage FaceWorker::convertMatToQImage(const cv::Mat& mat)
     {
         if (result.person_id !=m_lastRecognizedId)
         {
-            emit resultReady(result);
+            emit recognitionResultReady(result);
+
             m_lastRecognizedId=result.person_id;
 
-            m_hardwareController.triggerSuccessSequence(result.name);
+            m_hardwareController.triggerSuccessSequence(result.person_id);
         }
         
     }

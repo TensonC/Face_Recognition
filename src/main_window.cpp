@@ -63,7 +63,7 @@ Face::Face(QWidget *parent)
     connect(face_worker, &FaceWorker::statusChanged,
             this, &Face::showMessage);
     //认证成功发送信号
-    connect(face_worker, &FaceWorker::resultReady,
+    connect(face_worker, &FaceWorker::recognitionResultReady,
             this, &Face::facePass);
     //发送开始识别的请求
     connect(this, &Face::open_camera_notification,
